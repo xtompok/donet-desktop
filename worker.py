@@ -31,8 +31,10 @@ else:
 	port = sys.argv[1]
 
 try:
-	ser = serial.open(port,115200,timeout=1000)
-except 
+	ser = serial.Serial(port,57600,timeout=1)
+except:
+	print("Unable to open serial port {}".format(port))
+	sys.exit(1)
 
 
 def check_db():
@@ -40,17 +42,15 @@ def check_db():
 	for (node,atype,red,green,blue,white) in cur.fetchall():
 		if (atype == 1):
 			result = set_w_color(node,white)
-			process_result(result)
 		if (atype == 2):
 			result = set_rgb_color(node,red,green,blue)
-			process_result(result)
 
 def commit_to_db(node):
 	cur.execute("UPDATE state SET changed = 0 WHERE node = %s",(node,))
 	con.commit()
 
 def log_to_db(module,node,state,cmt):
-	cur.execute("INSERT INTO events (module,node,state,cmt) VALUES (%s,%s,%s,%s)",(module,node,state,cmt))
+	cur.execute("INSERT INTO events (module,node,state,comment) VALUES (%s,%s,%s,%s)",(module,node,state,cmt))
 
 
 def process_result(line):
@@ -91,8 +91,8 @@ def send_packet(node,cmd,data):
 	line = ser.readline()
 	if line[:-1] != '\n':
 		print("Timeout occured while reading line")
-		return line
-	return line[:-1]
+		return line.decode("ascii")
+	return line[:-1].decode("ascii")
 
 
 while (True):

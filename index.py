@@ -91,6 +91,7 @@ def set_color():
 			print("Error in communication with db: {}".format(e.diag.message_primary))
 			con.rollback()
 			abort(500)
+	return ('', 204)
 	
 	
 	
